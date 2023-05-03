@@ -4,13 +4,12 @@ const express = require("express")
 const app = express()
 const cors = require("cors")
 app.use(express.json())
-app.use(
-  cors({
-    origin: "http://localhost:5500",
-  })
-)
+app.use(cors());
+var path = require ("path");
+app.use(express.static(path.join(__dirname, '../client')));
 
-const stripe = require("stripe")(process.env.STRIPE_PRIVATE_KEY)
+
+const stripe = require("stripe")('secrate key')
 
 const storeItems = new Map([
   [1, { priceInCents: 10000, name: "Learn React Today" }],
@@ -19,6 +18,7 @@ const storeItems = new Map([
 
 app.post("/create-checkout-session", async (req, res) => {
   try {
+    console.log("alling")
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ["card"],
       mode: "payment",
@@ -35,8 +35,8 @@ app.post("/create-checkout-session", async (req, res) => {
           quantity: item.quantity,
         }
       }),
-      success_url: `${process.env.CLIENT_URL}/success.html`,
-      cancel_url: `${process.env.CLIENT_URL}/cancel.html`,
+      success_url: `http://localhost:3000/success.html`,
+      cancel_url: `http://localhost:3000/cancel.html`,
     })
     res.json({ url: session.url })
   } catch (e) {
